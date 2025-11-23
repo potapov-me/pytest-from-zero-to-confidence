@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 
 class CacheError(Exception):
@@ -9,7 +10,9 @@ class FileCache:
     """Простой кеш на файловой системе"""
 
     def __init__(self, storage_path):
-        self.storage_path = storage_path
+        self.storage_path = Path(storage_path)
+        # Создаем каталог заранее, чтобы запись не падала из-за отсутствия папок
+        self.storage_path.mkdir(parents=True, exist_ok=True)
 
     def set(self, key, value):
         try:

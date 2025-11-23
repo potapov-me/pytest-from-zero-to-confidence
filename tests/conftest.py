@@ -1,4 +1,7 @@
 import pytest
+import shutil
+import tempfile
+from pathlib import Path
 from unittest.mock import Mock
 from src.app import TodoApp
 from src.cache import FileCache
@@ -6,7 +9,18 @@ from src.cache import FileCache
 
 @pytest.fixture
 def temp_storage(tmp_path):
-    return tmp_path / "cache"
+    path = tmp_path / "cache"
+    tmp_root = Path(tempfile.gettempdir()).resolve()
+    if not path.resolve().is_relative_to(tmp_root):
+        raise ValueError("Temp storage must be inside system temp directory")
+    path.mkdir(parents=True, exist_ok=True)
+    try:
+        yield path
+    finally:
+        # Возвращаем права, чтобы pytest смог прибрать временные папки
+        if path.exists():
+            path.chmod(0o755)
+            shutil.rmtree(path, ignore_errors=True)
 
 
 @pytest.fixture

@@ -31,7 +31,10 @@ class TestTodoAppErrorHandling:
         task_id = app.add_task("Important task")
 
         os.chmod(temp_storage, 0o000)  # Ломаем доступ к кешу
-        task = app.complete_task(task_id)
+        try:
+            task = app.complete_task(task_id)
+        finally:
+            os.chmod(temp_storage, 0o755)
         assert task["done"] is True
         assert spy_remote.assert_log_contains("cache_unavailable")
 

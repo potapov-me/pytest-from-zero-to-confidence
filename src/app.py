@@ -18,7 +18,11 @@ class TodoApp:
 
         self.tasks[task_id] = task
         self.cache.set(f"task_{task_id}", task)
-        self.remote.sync_task(task)
+        try:
+            self.remote.sync_task(task)
+        except Exception:
+            # Удаленная синхронизация не критична для сохранения задачи
+            pass
         return task_id
 
     def complete_task(self, task_id: str) -> Dict[str, Any]:
@@ -33,7 +37,10 @@ class TodoApp:
             raise ValueError(f"Task {task_id} not found")
 
         task["done"] = True
-        self.remote.sync_task(task)
+        try:
+            self.remote.sync_task(task)
+        except Exception:
+            pass
         return task
 
     def list_tasks(self) -> list:
